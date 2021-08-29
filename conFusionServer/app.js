@@ -27,6 +27,16 @@ connect.then((db) => {
 
 var app = express();
 
+// Secure traffic only
+app.all('*', (req, res, next) => {
+  if (req.secure) {
+    return next();
+  }
+  else {
+    res.redirect(307, 'https://' + req.hostname + ':' + app.get('secPort') + req.url);
+  }
+});
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -49,81 +59,6 @@ app.use(passport.initialize());
 
 app.use('/', indexRouter);
 app.use('/users',usersRouter);
-
-// function auth (req, res, next) {
-//     console.log(req.session);
-
-//     if (!req.session.user) {
-//         // var authHeader = req.headers.authorization;
-//         // if (!authHeader) {
-//           var err = new Error('You are not authenticated!');
-//           res.setHeader('WWW-Authenticate', 'Basic');                        
-//           err.status = 401;
-//           next(err);
-//           return;
-//         }
-//         var auth = new Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':');
-//         var user = auth[0];
-//         var pass = auth[1];
-//         if (user == 'admin' && pass == 'password') {
-//             req.session.user = 'admin';
-//             next(); // authorized
-//         } else {
-//             var err = new Error('You are not authenticated!');
-//             res.setHeader('WWW-Authenticate', 'Basic');
-//             err.status = 401;
-//             next(err);
-//         }
-//     }
-//     else {
-//         if (req.session.user === 'admin') {
-//             console.log('req.session: ',req.session);
-//             next();
-//         }
-//         else {
-//             var err = new Error('You are not authenticated!');
-//             err.status = 401;
-//             next(err);
-//         }
-//     }
-// }
-
-// function auth (req, res, next) {
-//   console.log(req.session);
-
-//   if(!req.session.user) {
-//       var err = new Error('You are not authenticated!');
-//       err.status = 403;
-//       return next(err);
-//   }
-//   else {
-//     if (req.session.user === 'authenticated') {
-//       next();
-//     }
-//     else {
-//       var err = new Error('You are not authenticated!');
-//       err.status = 403;
-//       return next(err);
-//     }
-//   }
-// }
-
-// function auth (req, res, next) {
-//   console.log(req.user);
-
-//   if (!req.user) {
-//     var err = new Error('You are not authenticated!');
-//     err.status = 403;
-//     next(err);
-//   }
-//   else {
-//         next();
-//   }
-// }
-
-
-// app.use(auth);
-
 
 app.use(express.static(path.join(__dirname, 'public')));
 
